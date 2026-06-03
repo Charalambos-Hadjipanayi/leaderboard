@@ -3,21 +3,68 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Leaderboard</title>
+  <title>Radar-Pong Leaderboard – GERF 2026</title>
   <style>
+    /* ── Theme variables ──────────────────────────────────────────────────── */
+    :root {
+      --bg:          #001228;
+      --bg-panel:    #002147;
+      --bg-input:    #00101f;
+      --border:      #003a6b;
+      --border-soft: #001c3d;
+      --text:        #c5ddef;
+      --text-muted:  #2d5a7e;
+      --text-faint:  #1e3a5f;
+      --accent:      #4e95bf;
+      --score:       #71bfdf;
+      --title:       #4e95bf;
+      --h1-from:     #7ec8e3;
+      --h1-to:       #c5ddef;
+      --btn-from:    #003E74;
+      --btn-to:      #4e95bf;
+      --btn-text:    #ffffff;
+      --row-hover:   #002147;
+      --overlay:     rgba(0,0,0,0.75);
+    }
+
+    /* B/W mode: high contrast, no colour cues */
+    html[data-bw] {
+      --bg:          #ffffff;
+      --bg-panel:    #f0f0f0;
+      --bg-input:    #ffffff;
+      --border:      #888888;
+      --border-soft: #cccccc;
+      --text:        #000000;
+      --text-muted:  #444444;
+      --text-faint:  #888888;
+      --accent:      #000000;
+      --score:       #000000;
+      --title:       #111111;
+      --h1-from:     #000000;
+      --h1-to:       #000000;
+      --btn-from:    #111111;
+      --btn-to:      #444444;
+      --btn-text:    #ffffff;
+      --row-hover:   #eeeeee;
+      --overlay:     rgba(0,0,0,0.6);
+    }
+
+    /* ── Base ─────────────────────────────────────────────────────────────── */
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #001228;
-      color: #c5ddef;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding-bottom: 3rem;
+      transition: background 0.2s, color 0.2s;
     }
 
+    /* ── Header ───────────────────────────────────────────────────────────── */
     header {
       width: 100%;
       max-width: 680px;
@@ -32,24 +79,49 @@
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      color: #4e95bf;
+      color: var(--title);
       margin-bottom: 0.3rem;
     }
 
     h1 {
       font-size: 2rem;
       font-weight: 800;
-      background: linear-gradient(135deg, #7ec8e3, #c5ddef);
+      background: linear-gradient(135deg, var(--h1-from), var(--h1-to));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
       letter-spacing: -0.5px;
     }
 
+    html[data-bw] h1 {
+      background: none;
+      -webkit-text-fill-color: var(--text);
+      color: var(--text);
+    }
+
+    .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      width: 2.1rem;
+      height: 2.1rem;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .icon-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+
     #adminBtn {
       background: transparent;
-      border: 1px solid #003a6b;
-      color: #4d7a9e;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
       padding: 0.4rem 1rem;
       border-radius: 7px;
       cursor: pointer;
@@ -57,16 +129,17 @@
       transition: border-color 0.2s, color 0.2s;
       letter-spacing: 0.5px;
     }
-    #adminBtn:hover { border-color: #4e95bf; color: #4e95bf; }
-    #adminBtn.logged-in { border-color: #4e95bf; color: #4e95bf; }
+    #adminBtn:hover  { border-color: var(--accent); color: var(--accent); }
+    #adminBtn.logged-in { border-color: var(--accent); color: var(--accent); font-weight: 600; }
 
+    /* ── Main ─────────────────────────────────────────────────────────────── */
     main { width: 100%; max-width: 680px; padding: 0 1.25rem; }
 
-    /* ── Admin panel ── */
+    /* ── Admin panel ──────────────────────────────────────────────────────── */
     #adminPanel {
       display: none;
-      background: #002147;
-      border: 1px solid #003a6b;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 1.25rem;
       margin-bottom: 1.5rem;
@@ -76,35 +149,32 @@
       font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: #4e95bf;
+      color: var(--accent);
       display: block;
       margin-bottom: 0.75rem;
+      font-weight: 700;
     }
 
-    #addForm {
-      display: flex;
-      gap: 0.6rem;
-      flex-wrap: wrap;
-    }
+    #addForm { display: flex; gap: 0.6rem; flex-wrap: wrap; }
 
     #addForm input {
-      background: #00101f;
-      border: 1px solid #003a6b;
-      color: #c5ddef;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
       padding: 0.6rem 0.85rem;
       border-radius: 8px;
       font-size: 0.95rem;
       outline: none;
       transition: border-color 0.2s;
     }
-    #addForm input:focus { border-color: #4e95bf; }
+    #addForm input:focus { border-color: var(--accent); }
     #nameInput  { flex: 2; min-width: 140px; }
     #scoreInput { flex: 1; min-width: 90px; }
 
     #addForm button[type=submit] {
-      background: linear-gradient(135deg, #003E74, #4e95bf);
+      background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
       border: none;
-      color: #ffffff;
+      color: var(--btn-text);
       font-weight: 700;
       padding: 0.6rem 1.2rem;
       border-radius: 8px;
@@ -113,55 +183,48 @@
       white-space: nowrap;
       transition: opacity 0.2s;
     }
-    #addForm button[type=submit]:hover { opacity: 0.85; }
+    #addForm button[type=submit]:hover { opacity: 0.82; }
 
-    /* ── Leaderboard table ── */
-    .board {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    /* ── Leaderboard table ────────────────────────────────────────────────── */
+    .board { width: 100%; border-collapse: collapse; }
 
-    .board thead tr {
-      border-bottom: 1px solid #002a52;
-    }
+    .board thead tr { border-bottom: 2px solid var(--border); }
 
     .board th {
       padding: 0.65rem 1rem;
       font-size: 0.7rem;
       text-transform: uppercase;
       letter-spacing: 1px;
-      color: #2d5a7e;
+      color: var(--text-muted);
       text-align: left;
-      font-weight: 600;
+      font-weight: 700;
     }
     .board th.right { text-align: right; }
 
     .board tbody tr {
-      border-bottom: 1px solid #001c3d;
+      border-bottom: 1px solid var(--border-soft);
       transition: background 0.15s;
       animation: fadeIn 0.25s ease;
     }
-    .board tbody tr:hover { background: #002147; }
+    .board tbody tr:hover { background: var(--row-hover); }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-4px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .board td {
-      padding: 0.9rem 1rem;
-      font-size: 0.97rem;
-    }
+    .board td { padding: 0.9rem 1rem; font-size: 0.97rem; }
 
     td.rank {
       width: 52px;
       font-weight: 700;
-      color: #2d5a7e;
+      color: var(--text-muted);
       font-size: 0.9rem;
     }
-    td.rank.gold   { color: #ffd700; font-size: 1.3rem; }
-    td.rank.silver { color: #b0b0b0; font-size: 1.15rem; }
-    td.rank.bronze { color: #cd7f32; font-size: 1.1rem; }
+    /* Medal ranks: keep gold/silver/bronze — they also have distinct emoji symbols */
+    td.rank.gold   { font-size: 1.3rem; }
+    td.rank.silver { font-size: 1.15rem; }
+    td.rank.bronze { font-size: 1.1rem; }
 
     td.player { font-weight: 600; }
 
@@ -170,41 +233,49 @@
       font-variant-numeric: tabular-nums;
       font-weight: 700;
       font-size: 1.05rem;
-      color: #71bfdf;
+      color: var(--score);
     }
 
-    td.action { width: 70px; text-align: right; }
+    /* In B/W mode, underline score to distinguish it from name without colour */
+    html[data-bw] td.score { text-decoration: underline; text-decoration-style: dotted; }
+
+    td.action { width: 80px; text-align: right; }
 
     .remove-btn {
       display: none;
       background: transparent;
-      border: 1px solid #002a52;
-      color: #2d5a7e;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
       padding: 0.22rem 0.55rem;
       border-radius: 5px;
       cursor: pointer;
       font-size: 0.78rem;
-      transition: border-color 0.15s, color 0.15s;
+      transition: border-color 0.15s, color 0.15s, text-decoration 0.15s;
     }
-    .remove-btn:hover { border-color: #e53935; color: #e53935; }
-    .remove-btn.show  { display: inline-block; }
+    /* Hover: colour + underline so colour-blind users also see the state change */
+    .remove-btn:hover {
+      border-color: #c0392b;
+      color: #c0392b;
+      text-decoration: underline;
+    }
+    html[data-bw] .remove-btn:hover { border-color: #000; color: #000; font-weight: 700; }
+    .remove-btn.show { display: inline-block; }
 
-    /* ── Empty state ── */
+    /* ── Empty state ──────────────────────────────────────────────────────── */
     #emptyState {
       text-align: center;
-      color: #1e3a5f;
+      color: var(--text-faint);
       padding: 3.5rem 1rem;
       font-size: 1rem;
     }
 
-    /* ── Live indicator ── */
+    /* ── Live bar ─────────────────────────────────────────────────────────── */
     .live-bar {
       width: 100%;
       max-width: 680px;
       padding: 0.5rem 1.25rem 0;
-      text-align: right;
       font-size: 0.72rem;
-      color: #1e3a5f;
+      color: var(--text-faint);
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -216,17 +287,19 @@
       background: #4caf50;
       animation: pulse 2s infinite;
     }
+    html[data-bw] .dot { background: #000; }
+
     @keyframes pulse {
       0%,100% { opacity: 1; }
       50%      { opacity: 0.25; }
     }
 
-    /* ── Login modal ── */
+    /* ── Login modal ──────────────────────────────────────────────────────── */
     #loginOverlay {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.75);
+      background: var(--overlay);
       z-index: 200;
       align-items: center;
       justify-content: center;
@@ -234,32 +307,32 @@
     #loginOverlay.open { display: flex; }
 
     #loginBox {
-      background: #002147;
-      border: 1px solid #003a6b;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
       border-radius: 14px;
       padding: 2rem;
       width: 310px;
       max-width: 92vw;
     }
-    #loginBox h2 { font-size: 1rem; color: #7ec8e3; margin-bottom: 1.1rem; }
+    #loginBox h2 { font-size: 1rem; color: var(--accent); margin-bottom: 1.1rem; font-weight: 700; }
 
     #loginForm { display: flex; flex-direction: column; gap: 0.65rem; }
 
     #loginForm input {
-      background: #00101f;
-      border: 1px solid #003a6b;
-      color: #c5ddef;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
       padding: 0.65rem 0.85rem;
       border-radius: 8px;
       font-size: 0.93rem;
       outline: none;
     }
-    #loginForm input:focus { border-color: #4e95bf; }
+    #loginForm input:focus { border-color: var(--accent); }
 
     #loginSubmit {
-      background: linear-gradient(135deg, #003E74, #4e95bf);
+      background: linear-gradient(135deg, var(--btn-from), var(--btn-to));
       border: none;
-      color: #ffffff;
+      color: var(--btn-text);
       font-weight: 700;
       padding: 0.65rem;
       border-radius: 8px;
@@ -268,26 +341,28 @@
       margin-top: 0.15rem;
       transition: opacity 0.2s;
     }
-    #loginSubmit:hover { opacity: 0.85; }
+    #loginSubmit:hover { opacity: 0.82; }
 
     #loginError {
-      color: #e53935;
+      color: #c0392b;
       font-size: 0.82rem;
       display: none;
       text-align: center;
+      font-weight: 600;
     }
+    html[data-bw] #loginError { color: #000; text-decoration: underline; }
 
     #cancelLogin {
       background: transparent;
       border: none;
-      color: #2d5a7e;
+      color: var(--text-muted);
       cursor: pointer;
       font-size: 0.82rem;
       text-align: center;
       padding: 0.25rem;
       transition: color 0.15s;
     }
-    #cancelLogin:hover { color: #4e95bf; }
+    #cancelLogin:hover { color: var(--accent); text-decoration: underline; }
   </style>
 </head>
 <body>
@@ -297,48 +372,51 @@
       <p id="eventTitle">Radar-Pong Game &mdash; GERF 2026</p>
       <h1>&#127942; Leaderboard</h1>
     </div>
-    <button id="adminBtn">Admin</button>
+    <div class="header-actions">
+      <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">◑</button>
+      <button id="adminBtn" aria-label="Admin login">Admin</button>
+    </div>
   </header>
 
   <div class="live-bar">
-    <span class="dot"></span> Live
+    <span class="dot" aria-hidden="true"></span> Live
   </div>
 
   <main>
 
-    <div id="adminPanel">
+    <div id="adminPanel" role="region" aria-label="Add leaderboard entry">
       <label>&#10003; Admin — Add Entry</label>
       <form id="addForm" autocomplete="off">
-        <input type="text"   id="nameInput"  placeholder="Name / Nickname" required>
-        <input type="number" id="scoreInput" placeholder="Score" required min="0" step="1">
+        <input type="text"   id="nameInput"  placeholder="Name / Nickname" required aria-label="Player name">
+        <input type="number" id="scoreInput" placeholder="Score" required min="0" step="1" aria-label="Score">
         <button type="submit">+ Add</button>
       </form>
     </div>
 
-    <table class="board">
+    <table class="board" aria-label="Leaderboard">
       <thead>
         <tr>
-          <th>#</th>
-          <th>Player</th>
-          <th class="right">Score</th>
-          <th></th>
+          <th scope="col">#</th>
+          <th scope="col">Player</th>
+          <th scope="col" class="right">Score</th>
+          <th scope="col"><span class="sr-only">Actions</span></th>
         </tr>
       </thead>
       <tbody id="tbody"></tbody>
     </table>
 
-    <div id="emptyState">No entries yet.</div>
+    <div id="emptyState" role="status">No entries yet.</div>
 
   </main>
 
   <!-- Login overlay -->
-  <div id="loginOverlay">
+  <div id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginHeading">
     <div id="loginBox">
-      <h2>Admin Login</h2>
+      <h2 id="loginHeading">Admin Login</h2>
       <form id="loginForm" autocomplete="off">
-        <input type="text"     id="usernameInput" placeholder="Username" autocomplete="username">
-        <input type="password" id="passwordInput" placeholder="Password">
-        <span id="loginError">Incorrect credentials — try again.</span>
+        <input type="text"     id="usernameInput" placeholder="Username" autocomplete="username" aria-label="Username">
+        <input type="password" id="passwordInput" placeholder="Password" aria-label="Password">
+        <span id="loginError" role="alert">Incorrect credentials — try again.</span>
         <button type="submit" id="loginSubmit">Sign In</button>
         <button type="button" id="cancelLogin">Cancel</button>
       </form>
@@ -354,7 +432,6 @@
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    // ── PASTE YOUR FIREBASE CONFIG HERE ────────────────────────────────────
     const firebaseConfig = {
       apiKey:            "AIzaSyB5__FOLI5rG_3auAhwDOCdqeP0_pNywKE",
       authDomain:        "game-leaderboard-61160.firebaseapp.com",
@@ -364,14 +441,12 @@
       messagingSenderId: "579397977835",
       appId:             "1:579397977835:web:c4abc9082e79f1697de0ae",
     };
-    // ───────────────────────────────────────────────────────────────────────
 
     const app  = initializeApp(firebaseConfig);
     const db   = getDatabase(app);
     const auth = getAuth(app);
 
     const MEDALS = ['🥇','🥈','🥉'];
-
     let liveData = {};
 
     function uniqueName(base, data) {
@@ -393,6 +468,19 @@
     const addForm      = document.getElementById('addForm');
     const nameInput    = document.getElementById('nameInput');
     const scoreInput   = document.getElementById('scoreInput');
+    const bwBtn        = document.getElementById('bwBtn');
+
+    // ── B/W mode toggle ──────────────────────────────────────────────────
+    const BW_KEY = 'lb-bw';
+    function applyBW(on) {
+      document.documentElement.toggleAttribute('data-bw', on);
+      bwBtn.setAttribute('aria-pressed', String(on));
+      localStorage.setItem(BW_KEY, on ? '1' : '');
+    }
+    applyBW(!!localStorage.getItem(BW_KEY));
+    bwBtn.addEventListener('click', () =>
+      applyBW(!document.documentElement.hasAttribute('data-bw'))
+    );
 
     // ── Live leaderboard ─────────────────────────────────────────────────
     onValue(ref(db, 'leaderboard'), snapshot => {
@@ -414,18 +502,18 @@
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td class="rank ${rankClass}">${rankLabel}</td>
+          <td class="rank ${rankClass}" aria-label="Rank ${rank}">${rankLabel}</td>
           <td class="player">${esc(name)}</td>
           <td class="score">${score.toLocaleString()}</td>
           <td class="action">
-            <button class="remove-btn ${isAdmin ? 'show' : ''}" data-id="${esc(id)}">Remove</button>
+            <button class="remove-btn ${isAdmin ? 'show' : ''}" data-id="${esc(id)}" aria-label="Remove ${esc(name)}">Remove</button>
           </td>`;
         tbody.appendChild(tr);
       });
 
       tbody.querySelectorAll('.remove-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          if (confirm('Remove this entry from the leaderboard?')) {
+          if (confirm(`Remove "${btn.getAttribute('aria-label').replace('Remove ','')}" from the leaderboard?`)) {
             remove(ref(db, `leaderboard/${btn.dataset.id}`));
           }
         });
@@ -460,7 +548,7 @@
         signOut(auth);
       } else {
         loginOverlay.classList.add('open');
-        document.getElementById('emailInput').focus();
+        document.getElementById('usernameInput').focus();
       }
     });
 
