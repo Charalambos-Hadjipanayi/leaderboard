@@ -1,5 +1,18 @@
 {
   "database": {
     "rules": "database.rules.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "database.rules.json",
+      ".gitignore",
+      ".nojekyll",
+      "**/.*",
+      "*.pdf",
+      "UK DRI_LOGO_blue crystal_white text.png",
+      "ukdri_logo.png"
+    ]
   }
 }
