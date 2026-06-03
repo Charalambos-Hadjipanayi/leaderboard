@@ -100,6 +100,32 @@
       color: var(--text);
     }
 
+    /* ── Logo bar ─────────────────────────────────────────────────────────── */
+    #logoBar {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      padding: 0.6rem 1.25rem 0.9rem;
+      border-bottom: 1px solid var(--border-soft);
+      flex-wrap: wrap;
+    }
+
+    .org-logo {
+      height: 46px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    /* UK DRI has white text — keep it readable on the white B/W background */
+    html[data-bw] #driLogo {
+      background: #002147;
+      padding: 4px 10px;
+      border-radius: 5px;
+    }
+
     /* ── QR code ──────────────────────────────────────────────────────────── */
     #qrContainer {
       display: flex;
@@ -522,6 +548,12 @@
       <button id="adminBtn" aria-label="Admin login">Admin</button>
     </div>
   </header>
+
+  <div id="logoBar">
+    <img class="org-logo" src="IMPERIAL_logo_2024.svg"  alt="Imperial College London">
+    <img class="org-logo" id="driLogo" src="ukdri_logo.png" alt="UK Dementia Research Institute">
+    <img class="org-logo" src="logo_zoiva.svg"          alt="Zoiva">
+  </div>
 
   <div class="live-bar">
     <span class="dot" aria-hidden="true"></span> Live
