@@ -324,7 +324,7 @@
     <div id="loginBox">
       <h2>Admin Login</h2>
       <form id="loginForm" autocomplete="off">
-        <input type="email"    id="emailInput"    placeholder="Email" autocomplete="email">
+        <input type="text"     id="usernameInput" placeholder="Username" autocomplete="username">
         <input type="password" id="passwordInput" placeholder="Password">
         <span id="loginError">Incorrect credentials — try again.</span>
         <button type="submit" id="loginSubmit">Sign In</button>
@@ -446,9 +446,10 @@
       e.preventDefault();
       loginError.style.display = 'none';
       try {
+        const username = document.getElementById('usernameInput').value.trim().toLowerCase();
         await signInWithEmailAndPassword(
           auth,
-          document.getElementById('emailInput').value,
+          `${username}@leaderboard.app`,
           document.getElementById('passwordInput').value
         );
         loginOverlay.classList.remove('open');
