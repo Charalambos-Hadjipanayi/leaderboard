@@ -25,9 +25,9 @@
       --btn-text:    #ffffff;
       --row-hover:   #002147;
       --overlay:     rgba(0,0,0,0.75);
+      --danger:      #c0392b;
     }
 
-    /* B/W mode: high contrast, no colour cues */
     html[data-bw] {
       --bg:          #ffffff;
       --bg-panel:    #f0f0f0;
@@ -47,6 +47,7 @@
       --btn-text:    #ffffff;
       --row-hover:   #eeeeee;
       --overlay:     rgba(0,0,0,0.6);
+      --danger:      #000000;
     }
 
     /* ── Base ─────────────────────────────────────────────────────────────── */
@@ -60,7 +61,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-bottom: 3rem;
+      padding-bottom: 4rem;
       transition: background 0.2s, color 0.2s;
     }
 
@@ -115,7 +116,7 @@
       justify-content: center;
       transition: border-color 0.2s, color 0.2s;
     }
-    .icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .icon-btn:hover                { border-color: var(--accent); color: var(--accent); }
     .icon-btn[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
 
     #adminBtn {
@@ -129,7 +130,7 @@
       transition: border-color 0.2s, color 0.2s;
       letter-spacing: 0.5px;
     }
-    #adminBtn:hover  { border-color: var(--accent); color: var(--accent); }
+    #adminBtn:hover     { border-color: var(--accent); color: var(--accent); }
     #adminBtn.logged-in { border-color: var(--accent); color: var(--accent); font-weight: 600; }
 
     /* ── Main ─────────────────────────────────────────────────────────────── */
@@ -185,6 +186,89 @@
     }
     #addForm button[type=submit]:hover { opacity: 0.82; }
 
+    /* ── Stats bar ────────────────────────────────────────────────────────── */
+    #statsBar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      flex: 1;
+      min-width: 130px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .stat-value {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ── Find bar ─────────────────────────────────────────────────────────── */
+    #findBar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.5rem 0.85rem;
+      transition: border-color 0.2s;
+    }
+    #findBar:focus-within { border-color: var(--accent); }
+
+    #findIcon { font-size: 0.95rem; opacity: 0.5; flex-shrink: 0; }
+
+    #findInput {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-size: 0.93rem;
+      outline: none;
+      min-width: 0;
+    }
+    #findInput::placeholder { color: var(--text-muted); }
+    #findInput::-webkit-search-cancel-button { display: none; }
+
+    #findClear {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+      padding: 0 0.1rem;
+      transition: color 0.15s;
+      visibility: hidden;
+    }
+    #findClear:hover { color: var(--text); }
+    #findClear.visible { visibility: visible; }
+
+    #findResult {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      min-height: 1.4rem;
+      padding: 0 0.25rem 0.5rem;
+    }
+
     /* ── Leaderboard table ────────────────────────────────────────────────── */
     .board { width: 100%; border-collapse: collapse; }
 
@@ -203,10 +287,18 @@
 
     .board tbody tr {
       border-bottom: 1px solid var(--border-soft);
-      transition: background 0.15s;
+      transition: background 0.15s, opacity 0.2s;
       animation: fadeIn 0.25s ease;
     }
     .board tbody tr:hover { background: var(--row-hover); }
+
+    .board tbody tr.dimmed { opacity: 0.15; }
+    .board tbody tr.found  {
+      background: var(--row-hover);
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+    }
+    html[data-bw] .board tbody tr.found { outline-style: dashed; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-4px); }
@@ -216,12 +308,11 @@
     .board td { padding: 0.9rem 1rem; font-size: 0.97rem; }
 
     td.rank {
-      width: 52px;
+      width: 80px;
       font-weight: 700;
       color: var(--text-muted);
       font-size: 0.9rem;
     }
-    /* Medal ranks: keep gold/silver/bronze — they also have distinct emoji symbols */
     td.rank.gold   { font-size: 1.3rem; }
     td.rank.silver { font-size: 1.15rem; }
     td.rank.bronze { font-size: 1.1rem; }
@@ -235,8 +326,6 @@
       font-size: 1.05rem;
       color: var(--score);
     }
-
-    /* In B/W mode, underline score to distinguish it from name without colour */
     html[data-bw] td.score { text-decoration: underline; text-decoration-style: dotted; }
 
     td.action { width: 80px; text-align: right; }
@@ -250,15 +339,10 @@
       border-radius: 5px;
       cursor: pointer;
       font-size: 0.78rem;
-      transition: border-color 0.15s, color 0.15s, text-decoration 0.15s;
+      transition: border-color 0.15s, color 0.15s;
     }
-    /* Hover: colour + underline so colour-blind users also see the state change */
-    .remove-btn:hover {
-      border-color: #c0392b;
-      color: #c0392b;
-      text-decoration: underline;
-    }
-    html[data-bw] .remove-btn:hover { border-color: #000; color: #000; font-weight: 700; }
+    .remove-btn:hover { border-color: var(--danger); color: var(--danger); text-decoration: underline; }
+    html[data-bw] .remove-btn:hover { font-weight: 700; }
     .remove-btn.show { display: inline-block; }
 
     /* ── Empty state ──────────────────────────────────────────────────────── */
@@ -268,6 +352,36 @@
       padding: 3.5rem 1rem;
       font-size: 1rem;
     }
+
+    /* ── Reset section ────────────────────────────────────────────────────── */
+    #resetSection {
+      display: none;
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-soft);
+      text-align: center;
+    }
+
+    #resetSection p {
+      font-size: 0.75rem;
+      color: var(--text-faint);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    #resetBtn {
+      background: transparent;
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 0.5rem 1.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: background 0.2s, color 0.2s;
+    }
+    #resetBtn:hover { background: var(--danger); color: #ffffff; }
 
     /* ── Live bar ─────────────────────────────────────────────────────────── */
     .live-bar {
@@ -344,13 +458,13 @@
     #loginSubmit:hover { opacity: 0.82; }
 
     #loginError {
-      color: #c0392b;
+      color: var(--danger);
       font-size: 0.82rem;
       display: none;
       text-align: center;
       font-weight: 600;
     }
-    html[data-bw] #loginError { color: #000; text-decoration: underline; }
+    html[data-bw] #loginError { text-decoration: underline; }
 
     #cancelLogin {
       background: transparent;
@@ -373,7 +487,7 @@
       <h1>&#127942; Leaderboard</h1>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">◑</button>
+      <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">&#9680;</button>
       <button id="adminBtn" aria-label="Admin login">Admin</button>
     </div>
   </header>
@@ -384,8 +498,9 @@
 
   <main>
 
+    <!-- Admin add-entry panel -->
     <div id="adminPanel" role="region" aria-label="Add leaderboard entry">
-      <label>&#10003; Admin — Add Entry</label>
+      <label>&#10003; Admin &mdash; Add Entry</label>
       <form id="addForm" autocomplete="off">
         <input type="text"   id="nameInput"  placeholder="Name / Nickname" required aria-label="Player name">
         <input type="number" id="scoreInput" placeholder="Score" required min="0" step="1" aria-label="Score">
@@ -393,10 +508,35 @@
       </form>
     </div>
 
+    <!-- Stats strip -->
+    <div id="statsBar" aria-label="Leaderboard statistics">
+      <div class="stat">
+        <span class="stat-label">Date</span>
+        <span class="stat-value" id="statDate">&mdash;</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Highest Score</span>
+        <span class="stat-value" id="statTop">&mdash;</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Players</span>
+        <span class="stat-value" id="statCount">0</span>
+      </div>
+    </div>
+
+    <!-- Find bar (all users) -->
+    <div id="findBar" role="search">
+      <span id="findIcon" aria-hidden="true">&#128269;</span>
+      <input type="search" id="findInput" placeholder="Find your name on the board&hellip;" aria-label="Search players">
+      <button id="findClear" aria-label="Clear search">&#215;</button>
+    </div>
+    <p id="findResult" role="status" aria-live="polite"></p>
+
+    <!-- Leaderboard table -->
     <table class="board" aria-label="Leaderboard">
       <thead>
         <tr>
-          <th scope="col">#</th>
+          <th scope="col">Ranking</th>
           <th scope="col">Player</th>
           <th scope="col" class="right">Score</th>
           <th scope="col"><span class="sr-only">Actions</span></th>
@@ -407,6 +547,12 @@
 
     <div id="emptyState" role="status">No entries yet.</div>
 
+    <!-- Reset section (admin only) -->
+    <div id="resetSection">
+      <p>Danger Zone</p>
+      <button id="resetBtn">&#9888; Reset Leaderboard</button>
+    </div>
+
   </main>
 
   <!-- Login overlay -->
@@ -416,7 +562,7 @@
       <form id="loginForm" autocomplete="off">
         <input type="text"     id="usernameInput" placeholder="Username" autocomplete="username" aria-label="Username">
         <input type="password" id="passwordInput" placeholder="Password" aria-label="Password">
-        <span id="loginError" role="alert">Incorrect credentials — try again.</span>
+        <span id="loginError" role="alert">Incorrect credentials &mdash; try again.</span>
         <button type="submit" id="loginSubmit">Sign In</button>
         <button type="button" id="cancelLogin">Cancel</button>
       </form>
@@ -449,9 +595,9 @@
     const MEDALS = ['🥇','🥈','🥉'];
     let liveData = {};
 
-    function uniqueName(base, data) {
+    // Returns next available suffixed name (used after admin confirms append)
+    function nextSuffixedName(base, data) {
       const names = Object.values(data).map(v => v.name);
-      if (!names.includes(base)) return base;
       let n = 2;
       while (names.includes(`${base} (${n})`)) n++;
       return `${base} (${n})`;
@@ -469,8 +615,16 @@
     const nameInput    = document.getElementById('nameInput');
     const scoreInput   = document.getElementById('scoreInput');
     const bwBtn        = document.getElementById('bwBtn');
+    const findInput    = document.getElementById('findInput');
+    const findClear    = document.getElementById('findClear');
+    const findResult   = document.getElementById('findResult');
+    const statDate     = document.getElementById('statDate');
+    const statTop      = document.getElementById('statTop');
+    const statCount    = document.getElementById('statCount');
+    const resetSection = document.getElementById('resetSection');
+    const resetBtn     = document.getElementById('resetBtn');
 
-    // ── B/W mode toggle ──────────────────────────────────────────────────
+    // ── B/W mode ─────────────────────────────────────────────────────────
     const BW_KEY = 'lb-bw';
     function applyBW(on) {
       document.documentElement.toggleAttribute('data-bw', on);
@@ -482,13 +636,21 @@
       applyBW(!document.documentElement.hasAttribute('data-bw'))
     );
 
+    // ── Date (set once) ───────────────────────────────────────────────────
+    statDate.textContent = new Date().toLocaleDateString('en-GB', {
+      weekday: 'short', day: '2-digit', month: 'long', year: 'numeric'
+    });
+
     // ── Live leaderboard ─────────────────────────────────────────────────
     onValue(ref(db, 'leaderboard'), snapshot => {
       liveData      = snapshot.val() || {};
-      const data    = liveData;
-      const entries = Object.entries(data)
+      const entries = Object.entries(liveData)
         .map(([id, v]) => ({ id, name: v.name, score: Number(v.score) }))
         .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+
+      // Update stats
+      statCount.textContent = entries.length;
+      statTop.textContent   = entries.length > 0 ? entries[0].score.toLocaleString() : '—';
 
       tbody.innerHTML = '';
       emptyState.style.display = entries.length ? 'none' : 'block';
@@ -498,7 +660,7 @@
       entries.forEach(({ id, name, score }, i) => {
         const rank      = i + 1;
         const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
-        const rankLabel = rank <= 3 ? MEDALS[i] : rank;
+        const rankLabel = rank <= 3 ? MEDALS[i] : `#${rank}`;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -513,30 +675,93 @@
 
       tbody.querySelectorAll('.remove-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          if (confirm(`Remove "${btn.getAttribute('aria-label').replace('Remove ','')}" from the leaderboard?`)) {
+          const playerName = btn.getAttribute('aria-label').replace('Remove ', '');
+          if (confirm(`Remove "${playerName}" from the leaderboard?`)) {
             remove(ref(db, `leaderboard/${btn.dataset.id}`));
           }
         });
       });
+
+      // Re-apply any active search after board re-render
+      applySearch();
     });
 
     // ── Add entry ────────────────────────────────────────────────────────
     addForm.addEventListener('submit', e => {
       e.preventDefault();
-      const name  = nameInput.value.trim();
-      const score = parseInt(scoreInput.value, 10);
-      if (!name || isNaN(score)) return;
-      push(ref(db, 'leaderboard'), { name: uniqueName(name, liveData), score });
+      const rawName = nameInput.value.trim();
+      const score   = parseInt(scoreInput.value, 10);
+      if (!rawName || isNaN(score)) return;
+
+      // Case-insensitive duplicate check
+      const existingNames = Object.values(liveData).map(v => v.name.toLowerCase());
+      if (existingNames.includes(rawName.toLowerCase())) {
+        const suggested = nextSuffixedName(rawName, liveData);
+        const append = confirm(
+          `A player named "${rawName}" already exists.\n\n` +
+          `• OK  →  add as "${suggested}" (played again)\n` +
+          `• Cancel  →  go back and enter a different name`
+        );
+        if (!append) {
+          nameInput.select();
+          nameInput.focus();
+          return;
+        }
+        push(ref(db, 'leaderboard'), { name: suggested, score });
+      } else {
+        push(ref(db, 'leaderboard'), { name: rawName, score });
+      }
+
       nameInput.value  = '';
       scoreInput.value = '';
       nameInput.focus();
     });
 
+    // ── Find bar ─────────────────────────────────────────────────────────
+    function applySearch() {
+      const q = findInput.value.trim().toLowerCase();
+      findClear.classList.toggle('visible', q.length > 0);
+
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      if (!q) {
+        findResult.textContent = '';
+        rows.forEach(r => r.classList.remove('dimmed', 'found'));
+        return;
+      }
+
+      let found = 0;
+      rows.forEach(r => {
+        const name = r.querySelector('.player')?.textContent.toLowerCase() || '';
+        const match = name.includes(q);
+        r.classList.toggle('dimmed', !match);
+        r.classList.toggle('found',  match);
+        if (match) found++;
+      });
+
+      if (rows.length === 0) {
+        findResult.textContent = '';
+      } else if (found === 0) {
+        findResult.textContent = 'No player found with that name.';
+      } else {
+        findResult.textContent = found === 1 ? 'Player found.' : `${found} players found.`;
+        document.querySelector('#tbody tr.found')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+
+    findInput.addEventListener('input', applySearch);
+
+    findClear.addEventListener('click', () => {
+      findInput.value = '';
+      applySearch();
+      findInput.focus();
+    });
+
     // ── Auth state ───────────────────────────────────────────────────────
     onAuthStateChanged(auth, user => {
       const on = !!user;
-      adminPanel.style.display = on ? 'block' : 'none';
-      adminBtn.textContent     = on ? 'Logout' : 'Admin';
+      adminPanel.style.display  = on ? 'block'  : 'none';
+      resetSection.style.display = on ? 'block' : 'none';
+      adminBtn.textContent      = on ? 'Logout' : 'Admin';
       adminBtn.classList.toggle('logged-in', on);
       document.querySelectorAll('.remove-btn')
         .forEach(b => b.classList.toggle('show', on));
@@ -574,6 +799,19 @@
       loginOverlay.classList.remove('open');
       loginForm.reset();
       loginError.style.display = 'none';
+    });
+
+    // ── Reset leaderboard (admin only, double-confirmed) ──────────────────
+    resetBtn.addEventListener('click', () => {
+      if (!confirm(
+        'Are you sure you want to reset the leaderboard?\n' +
+        'This will permanently delete ALL entries.'
+      )) return;
+      if (!confirm(
+        'Second confirmation — this cannot be undone.\n\n' +
+        'Reset the leaderboard now?'
+      )) return;
+      remove(ref(db, 'leaderboard'));
     });
 
     // ── Util ─────────────────────────────────────────────────────────────
