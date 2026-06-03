@@ -70,15 +70,9 @@
       width: 100%;
       max-width: 680px;
       display: flex;
-      flex-direction: column;
-      padding: 1.75rem 1.25rem 0;
-    }
-
-    #headerTop {
-      display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 0.9rem;
+      align-items: center;
+      padding: 1.5rem 1.25rem 1rem;
     }
 
     #eventTitle {
@@ -108,21 +102,20 @@
 
     /* ── Logo bar ─────────────────────────────────────────────────────────── */
     #logoBar {
+      width: 100%;
+      background: #ffffff;
       display: flex;
       align-items: center;
-      justify-content: space-evenly;
-      gap: 1.5rem;
-      padding: 0.65rem 1.25rem;
-      margin-top: 0.9rem;
-      background: #ffffff;
-      border-radius: 10px;
+      justify-content: center;
+      gap: 3rem;
+      padding: 0.85rem 2rem;
+      border-bottom: 2px solid #e0e0e0;
       flex-wrap: wrap;
     }
 
     .org-logo {
-      height: 38px;
-      width: auto;
-      max-width: 190px;
+      width: 150px;
+      height: 52px;
       object-fit: contain;
       object-position: center;
     }
@@ -540,30 +533,29 @@
 </head>
 <body>
 
+  <div id="logoBar">
+    <img class="org-logo" src="IMPERIAL_logo_2024.svg"  alt="Imperial College London">
+    <img class="org-logo" src="ukdri_logo_rgb.png"      alt="UK Dementia Research Institute">
+    <img class="org-logo" src="logo_zoiva.svg"          alt="Zoiva">
+  </div>
+
   <header>
-    <div id="headerTop">
-      <div>
-        <p id="eventTitle">Radar-Pong Game &mdash; GERF 2026</p>
-        <h1>&#127942; Leaderboard</h1>
-      </div>
-      <div class="header-actions">
-        <div id="qrContainer">
-          <img id="qrImg"
-               src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fcharalambos-hadjipanayi.github.io%2Fleaderboard%2F&qzone=1&margin=0"
-               alt="QR code — scan to open leaderboard on your phone"
-               width="88" height="88">
-          <p id="qrLabel">Scan to view</p>
-        </div>
-        <div class="action-btns">
-          <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">&#9680;</button>
-          <button id="adminBtn" aria-label="Admin login">Admin</button>
-        </div>
-      </div>
+    <div>
+      <p id="eventTitle">Radar-Pong Game &mdash; GERF 2026</p>
+      <h1>&#127942; Leaderboard</h1>
     </div>
-    <div id="logoBar">
-      <img class="org-logo" src="IMPERIAL_logo_2024.svg" alt="Imperial College London">
-      <img class="org-logo" id="driLogo" src="ukdri_logo_rgb.png" alt="UK Dementia Research Institute">
-      <img class="org-logo" src="logo_zoiva.svg" alt="Zoiva">
+    <div class="header-actions">
+      <div id="qrContainer">
+        <img id="qrImg"
+             src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fcharalambos-hadjipanayi.github.io%2Fleaderboard%2F&qzone=1&margin=0"
+             alt="QR code — scan to open leaderboard on your phone"
+             width="88" height="88">
+        <p id="qrLabel">Scan to view</p>
+      </div>
+      <div class="action-btns">
+        <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">&#9680;</button>
+        <button id="adminBtn" aria-label="Admin login">Admin</button>
+      </div>
     </div>
   </header>
 
