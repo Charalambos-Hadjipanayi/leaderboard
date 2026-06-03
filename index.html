@@ -573,7 +573,7 @@
   <script type="module">
     import { initializeApp }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, push, remove, onValue }
+    import { getDatabase, ref, push, remove, get }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
     import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -641,50 +641,57 @@
       weekday: 'short', day: '2-digit', month: 'long', year: 'numeric'
     });
 
-    // ── Live leaderboard ─────────────────────────────────────────────────
-    onValue(ref(db, 'leaderboard'), snapshot => {
-      liveData      = snapshot.val() || {};
-      const entries = Object.entries(liveData)
-        .map(([id, v]) => ({ id, name: v.name, score: Number(v.score) }))
-        .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+    // ── Board render (called on load + every 10 s + after any write) ───────
+    async function refreshBoard() {
+      try {
+        const snapshot = await get(ref(db, 'leaderboard'));
+        liveData       = snapshot.val() || {};
+        const entries  = Object.entries(liveData)
+          .map(([id, v]) => ({ id, name: v.name, score: Number(v.score) }))
+          .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 
-      // Update stats
-      statCount.textContent = entries.length;
-      statTop.textContent   = entries.length > 0 ? entries[0].score.toLocaleString() : '—';
+        statCount.textContent = entries.length;
+        statTop.textContent   = entries.length > 0 ? entries[0].score.toLocaleString() : '—';
 
-      tbody.innerHTML = '';
-      emptyState.style.display = entries.length ? 'none' : 'block';
+        tbody.innerHTML = '';
+        emptyState.style.display = entries.length ? 'none' : 'block';
 
-      const isAdmin = !!auth.currentUser;
+        const isAdmin = !!auth.currentUser;
 
-      entries.forEach(({ id, name, score }, i) => {
-        const rank      = i + 1;
-        const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
-        const rankLabel = rank <= 3 ? MEDALS[i] : `#${rank}`;
+        entries.forEach(({ id, name, score }, i) => {
+          const rank      = i + 1;
+          const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+          const rankLabel = rank <= 3 ? MEDALS[i] : `#${rank}`;
 
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="rank ${rankClass}" aria-label="Rank ${rank}">${rankLabel}</td>
-          <td class="player">${esc(name)}</td>
-          <td class="score">${score.toLocaleString()}</td>
-          <td class="action">
-            <button class="remove-btn ${isAdmin ? 'show' : ''}" data-id="${esc(id)}" aria-label="Remove ${esc(name)}">Remove</button>
-          </td>`;
-        tbody.appendChild(tr);
-      });
-
-      tbody.querySelectorAll('.remove-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const playerName = btn.getAttribute('aria-label').replace('Remove ', '');
-          if (confirm(`Remove "${playerName}" from the leaderboard?`)) {
-            remove(ref(db, `leaderboard/${btn.dataset.id}`));
-          }
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="rank ${rankClass}" aria-label="Rank ${rank}">${rankLabel}</td>
+            <td class="player">${esc(name)}</td>
+            <td class="score">${score.toLocaleString()}</td>
+            <td class="action">
+              <button class="remove-btn ${isAdmin ? 'show' : ''}" data-id="${esc(id)}" aria-label="Remove ${esc(name)}">Remove</button>
+            </td>`;
+          tbody.appendChild(tr);
         });
-      });
 
-      // Re-apply any active search after board re-render
-      applySearch();
-    });
+        tbody.querySelectorAll('.remove-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const playerName = btn.getAttribute('aria-label').replace('Remove ', '');
+            if (confirm(`Remove "${playerName}" from the leaderboard?`)) {
+              remove(ref(db, `leaderboard/${btn.dataset.id}`)).then(refreshBoard);
+            }
+          });
+        });
+
+        applySearch();
+      } catch (err) {
+        console.error('Board refresh failed:', err);
+      }
+    }
+
+    // Initial load then poll every 10 seconds
+    refreshBoard();
+    setInterval(refreshBoard, 10000);
 
     // ── Add entry ────────────────────────────────────────────────────────
     addForm.addEventListener('submit', e => {
@@ -707,9 +714,9 @@
           nameInput.focus();
           return;
         }
-        push(ref(db, 'leaderboard'), { name: suggested, score });
+        push(ref(db, 'leaderboard'), { name: suggested, score }).then(refreshBoard);
       } else {
-        push(ref(db, 'leaderboard'), { name: rawName, score });
+        push(ref(db, 'leaderboard'), { name: rawName, score }).then(refreshBoard);
       }
 
       nameInput.value  = '';
@@ -759,12 +766,12 @@
     // ── Auth state ───────────────────────────────────────────────────────
     onAuthStateChanged(auth, user => {
       const on = !!user;
-      adminPanel.style.display  = on ? 'block'  : 'none';
+      adminPanel.style.display   = on ? 'block' : 'none';
       resetSection.style.display = on ? 'block' : 'none';
-      adminBtn.textContent      = on ? 'Logout' : 'Admin';
+      adminBtn.textContent       = on ? 'Logout' : 'Admin';
       adminBtn.classList.toggle('logged-in', on);
-      document.querySelectorAll('.remove-btn')
-        .forEach(b => b.classList.toggle('show', on));
+      // Re-render so remove buttons show/hide correctly on login/logout
+      refreshBoard();
     });
 
     // ── Admin button ─────────────────────────────────────────────────────
@@ -811,7 +818,7 @@
         'Second confirmation — this cannot be undone.\n\n' +
         'Reset the leaderboard now?'
       )) return;
-      remove(ref(db, 'leaderboard'));
+      remove(ref(db, 'leaderboard')).then(refreshBoard);
     });
 
     // ── Util ─────────────────────────────────────────────────────────────
