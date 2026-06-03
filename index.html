@@ -151,7 +151,14 @@
       color: var(--text-muted);
     }
 
-    .header-actions { display: flex; gap: 0.5rem; align-items: center; }
+    .header-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .action-btns { display: flex; gap: 0.5rem; align-items: center; }
 
     .icon-btn {
       background: transparent;
@@ -536,16 +543,18 @@
       <p id="eventTitle">Radar-Pong Game &mdash; GERF 2026</p>
       <h1>&#127942; Leaderboard</h1>
     </div>
-    <div id="qrContainer">
-      <img id="qrImg"
-           src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fcharalambos-hadjipanayi.github.io%2Fleaderboard%2F&qzone=1&margin=0"
-           alt="QR code — scan to open leaderboard on your phone"
-           width="88" height="88">
-      <p id="qrLabel">Scan to view</p>
-    </div>
     <div class="header-actions">
-      <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">&#9680;</button>
-      <button id="adminBtn" aria-label="Admin login">Admin</button>
+      <div id="qrContainer">
+        <img id="qrImg"
+             src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fcharalambos-hadjipanayi.github.io%2Fleaderboard%2F&qzone=1&margin=0"
+             alt="QR code — scan to open leaderboard on your phone"
+             width="88" height="88">
+        <p id="qrLabel">Scan to view</p>
+      </div>
+      <div class="action-btns">
+        <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">&#9680;</button>
+        <button id="adminBtn" aria-label="Admin login">Admin</button>
+      </div>
     </div>
   </header>
 
