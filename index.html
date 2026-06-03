@@ -100,6 +100,31 @@
       color: var(--text);
     }
 
+    /* ── QR code ──────────────────────────────────────────────────────────── */
+    #qrContainer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+
+    #qrImg {
+      display: block;
+      background: #ffffff;
+      padding: 4px;
+      border-radius: 6px;
+      width: 88px;
+      height: 88px;
+    }
+
+    #qrLabel {
+      font-size: 0.58rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+    }
+
     .header-actions { display: flex; gap: 0.5rem; align-items: center; }
 
     .icon-btn {
@@ -326,7 +351,6 @@
       font-size: 1.05rem;
       color: var(--score);
     }
-    html[data-bw] td.score { text-decoration: underline; text-decoration-style: dotted; }
 
     td.action { width: 80px; text-align: right; }
 
@@ -485,6 +509,13 @@
     <div>
       <p id="eventTitle">Radar-Pong Game &mdash; GERF 2026</p>
       <h1>&#127942; Leaderboard</h1>
+    </div>
+    <div id="qrContainer">
+      <img id="qrImg"
+           src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fcharalambos-hadjipanayi.github.io%2Fleaderboard%2F&qzone=1&margin=0"
+           alt="QR code — scan to open leaderboard on your phone"
+           width="88" height="88">
+      <p id="qrLabel">Scan to view</p>
     </div>
     <div class="header-actions">
       <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">&#9680;</button>
@@ -751,7 +782,7 @@
         findResult.textContent = 'No player found with that name.';
       } else {
         findResult.textContent = found === 1 ? 'Player found.' : `${found} players found.`;
-        document.querySelector('#tbody tr.found')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        document.querySelector('#tbody tr.found')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
     }
 
