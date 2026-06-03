@@ -70,9 +70,15 @@
       width: 100%;
       max-width: 680px;
       display: flex;
+      flex-direction: column;
+      padding: 1.75rem 1.25rem 0;
+    }
+
+    #headerTop {
+      display: flex;
       justify-content: space-between;
-      align-items: center;
-      padding: 2rem 1.25rem 1.25rem;
+      align-items: flex-start;
+      margin-bottom: 0.9rem;
     }
 
     #eventTitle {
@@ -102,21 +108,21 @@
 
     /* ── Logo bar ─────────────────────────────────────────────────────────── */
     #logoBar {
-      width: 100%;
-      max-width: 680px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 2.5rem;
-      padding: 0.6rem 1.25rem 0.9rem;
-      border-bottom: 1px solid var(--border-soft);
+      justify-content: space-evenly;
+      gap: 1.5rem;
+      padding: 0.7rem 0 0.9rem;
+      border-top: 1px solid var(--border-soft);
       flex-wrap: wrap;
     }
 
     .org-logo {
-      height: 46px;
+      height: 38px;
       width: auto;
+      max-width: 190px;
       object-fit: contain;
+      object-position: center;
     }
 
     /* UK DRI has white text — keep it readable on the white B/W background */
@@ -539,30 +545,31 @@
 <body>
 
   <header>
-    <div>
-      <p id="eventTitle">Radar-Pong Game &mdash; GERF 2026</p>
-      <h1>&#127942; Leaderboard</h1>
+    <div id="headerTop">
+      <div>
+        <p id="eventTitle">Radar-Pong Game &mdash; GERF 2026</p>
+        <h1>&#127942; Leaderboard</h1>
+      </div>
+      <div class="header-actions">
+        <div id="qrContainer">
+          <img id="qrImg"
+               src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fcharalambos-hadjipanayi.github.io%2Fleaderboard%2F&qzone=1&margin=0"
+               alt="QR code — scan to open leaderboard on your phone"
+               width="88" height="88">
+          <p id="qrLabel">Scan to view</p>
+        </div>
+        <div class="action-btns">
+          <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">&#9680;</button>
+          <button id="adminBtn" aria-label="Admin login">Admin</button>
+        </div>
+      </div>
     </div>
-    <div class="header-actions">
-      <div id="qrContainer">
-        <img id="qrImg"
-             src="https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=https%3A%2F%2Fcharalambos-hadjipanayi.github.io%2Fleaderboard%2F&qzone=1&margin=0"
-             alt="QR code — scan to open leaderboard on your phone"
-             width="88" height="88">
-        <p id="qrLabel">Scan to view</p>
-      </div>
-      <div class="action-btns">
-        <button class="icon-btn" id="bwBtn" aria-pressed="false" title="Toggle black &amp; white mode">&#9680;</button>
-        <button id="adminBtn" aria-label="Admin login">Admin</button>
-      </div>
+    <div id="logoBar">
+      <img class="org-logo" src="IMPERIAL_logo_2024.svg" alt="Imperial College London">
+      <img class="org-logo" id="driLogo" src="ukdri_logo.png" alt="UK Dementia Research Institute">
+      <img class="org-logo" src="logo_zoiva.svg" alt="Zoiva">
     </div>
   </header>
-
-  <div id="logoBar">
-    <img class="org-logo" src="IMPERIAL_logo_2024.svg"  alt="Imperial College London">
-    <img class="org-logo" id="driLogo" src="ukdri_logo.png" alt="UK Dementia Research Institute">
-    <img class="org-logo" src="logo_zoiva.svg"          alt="Zoiva">
-  </div>
 
   <div class="live-bar">
     <span class="dot" aria-hidden="true"></span> Live
