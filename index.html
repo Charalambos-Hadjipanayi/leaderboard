@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #0d0d1a;
+      color: #e0e0f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 3rem;
+    }
+
+    header {
+      width: 100%;
+      max-width: 680px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 2rem 1.25rem 1.25rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffd700, #ff7c2a);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.5px;
+    }
+
+    #adminBtn {
+      background: transparent;
+      border: 1px solid #333;
+      color: #666;
+      padding: 0.4rem 1rem;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      transition: border-color 0.2s, color 0.2s;
+      letter-spacing: 0.5px;
+    }
+    #adminBtn:hover { border-color: #ffd700; color: #ffd700; }
+    #adminBtn.logged-in { border-color: #4caf50; color: #4caf50; }
+
+    main { width: 100%; max-width: 680px; padding: 0 1.25rem; }
+
+    /* ── Admin panel ── */
+    #adminPanel {
+      display: none;
+      background: #141428;
+      border: 1px solid #2a2a44;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    #adminPanel label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #4caf50;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    #addForm {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+
+    #addForm input {
+      background: #0d0d1a;
+      border: 1px solid #333;
+      color: #e0e0f0;
+      padding: 0.6rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    #addForm input:focus { border-color: #ffd700; }
+    #nameInput  { flex: 2; min-width: 140px; }
+    #scoreInput { flex: 1; min-width: 90px; }
+
+    #addForm button[type=submit] {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      border: none;
+      color: #0d0d1a;
+      font-weight: 700;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+    }
+    #addForm button[type=submit]:hover { opacity: 0.85; }
+
+    /* ── Leaderboard table ── */
+    .board {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .board thead tr {
+      border-bottom: 1px solid #1e1e38;
+    }
+
+    .board th {
+      padding: 0.65rem 1rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #444;
+      text-align: left;
+      font-weight: 600;
+    }
+    .board th.right { text-align: right; }
+
+    .board tbody tr {
+      border-bottom: 1px solid #12121f;
+      transition: background 0.15s;
+      animation: fadeIn 0.25s ease;
+    }
+    .board tbody tr:hover { background: #141428; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .board td {
+      padding: 0.9rem 1rem;
+      font-size: 0.97rem;
+    }
+
+    td.rank {
+      width: 52px;
+      font-weight: 700;
+      color: #444;
+      font-size: 0.9rem;
+    }
+    td.rank.gold   { color: #ffd700; font-size: 1.3rem; }
+    td.rank.silver { color: #b0b0b0; font-size: 1.15rem; }
+    td.rank.bronze { color: #cd7f32; font-size: 1.1rem; }
+
+    td.player { font-weight: 600; }
+
+    td.score {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: #ffd700;
+    }
+
+    td.action { width: 70px; text-align: right; }
+
+    .remove-btn {
+      display: none;
+      background: transparent;
+      border: 1px solid #2a2a2a;
+      color: #555;
+      padding: 0.22rem 0.55rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .remove-btn:hover { border-color: #e53935; color: #e53935; }
+    .remove-btn.show  { display: inline-block; }
+
+    /* ── Empty state ── */
+    #emptyState {
+      text-align: center;
+      color: #333;
+      padding: 3.5rem 1rem;
+      font-size: 1rem;
+    }
+
+    /* ── Live indicator ── */
+    .live-bar {
+      width: 100%;
+      max-width: 680px;
+      padding: 0.5rem 1.25rem 0;
+      text-align: right;
+      font-size: 0.72rem;
+      color: #2a2a2a;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 0.4rem;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #4caf50;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.25; }
+    }
+
+    /* ── Login modal ── */
+    #loginOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    #loginOverlay.open { display: flex; }
+
+    #loginBox {
+      background: #141428;
+      border: 1px solid #2a2a44;
+      border-radius: 14px;
+      padding: 2rem;
+      width: 310px;
+      max-width: 92vw;
+    }
+    #loginBox h2 { font-size: 1rem; color: #ffd700; margin-bottom: 1.1rem; }
+
+    #loginForm { display: flex; flex-direction: column; gap: 0.65rem; }
+
+    #loginForm input {
+      background: #0d0d1a;
+      border: 1px solid #333;
+      color: #e0e0f0;
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.93rem;
+      outline: none;
+    }
+    #loginForm input:focus { border-color: #ffd700; }
+
+    #loginSubmit {
+      background: linear-gradient(135deg, #ffd700, #ff8c00);
+      border: none;
+      color: #0d0d1a;
+      font-weight: 700;
+      padding: 0.65rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      margin-top: 0.15rem;
+      transition: opacity 0.2s;
+    }
+    #loginSubmit:hover { opacity: 0.85; }
+
+    #loginError {
+      color: #e53935;
+      font-size: 0.82rem;
+      display: none;
+      text-align: center;
+    }
+
+    #cancelLogin {
+      background: transparent;
+      border: none;
+      color: #555;
+      cursor: pointer;
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 0.25rem;
+      transition: color 0.15s;
+    }
+    #cancelLogin:hover { color: #888; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>&#127942; Leaderboard</h1>
+    <button id="adminBtn">Admin</button>
+  </header>
+
+  <div class="live-bar">
+    <span class="dot"></span> Live
+  </div>
+
+  <main>
+
+    <div id="adminPanel">
+      <label>&#10003; Admin — Add Entry</label>
+      <form id="addForm" autocomplete="off">
+        <input type="text"   id="nameInput"  placeholder="Name / Nickname" required>
+        <input type="number" id="scoreInput" placeholder="Score" required min="0" step="1">
+        <button type="submit">+ Add</button>
+      </form>
+    </div>
+
+    <table class="board">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Player</th>
+          <th class="right">Score</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+
+    <div id="emptyState">No entries yet.</div>
+
+  </main>
+
+  <!-- Login overlay -->
+  <div id="loginOverlay">
+    <div id="loginBox">
+      <h2>Admin Login</h2>
+      <form id="loginForm" autocomplete="off">
+        <input type="email"    id="emailInput"    placeholder="Email" autocomplete="email">
+        <input type="password" id="passwordInput" placeholder="Password">
+        <span id="loginError">Incorrect credentials — try again.</span>
+        <button type="submit" id="loginSubmit">Sign In</button>
+        <button type="button" id="cancelLogin">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Firebase SDK (modular v10) -->
+  <script type="module">
+    import { initializeApp }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getDatabase, ref, push, remove, onValue }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    // ── PASTE YOUR FIREBASE CONFIG HERE ────────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            "AIzaSyB5__FOLI5rG_3auAhwDOCdqeP0_pNywKE",
+      authDomain:        "game-leaderboard-61160.firebaseapp.com",
+      databaseURL:       "https://game-leaderboard-61160-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId:         "game-leaderboard-61160",
+      storageBucket:     "game-leaderboard-61160.firebasestorage.app",
+      messagingSenderId: "579397977835",
+      appId:             "1:579397977835:web:c4abc9082e79f1697de0ae",
+    };
+    // ───────────────────────────────────────────────────────────────────────
+
+    const app  = initializeApp(firebaseConfig);
+    const db   = getDatabase(app);
+    const auth = getAuth(app);
+
+    const MEDALS = ['🥇','🥈','🥉'];
+
+    // DOM refs
+    const tbody        = document.getElementById('tbody');
+    const emptyState   = document.getElementById('emptyState');
+    const adminPanel   = document.getElementById('adminPanel');
+    const adminBtn     = document.getElementById('adminBtn');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const loginForm    = document.getElementById('loginForm');
+    const loginError   = document.getElementById('loginError');
+    const addForm      = document.getElementById('addForm');
+    const nameInput    = document.getElementById('nameInput');
+    const scoreInput   = document.getElementById('scoreInput');
+
+    // ── Live leaderboard ─────────────────────────────────────────────────
+    onValue(ref(db, 'leaderboard'), snapshot => {
+      const data    = snapshot.val() || {};
+      const entries = Object.entries(data)
+        .map(([id, v]) => ({ id, name: v.name, score: Number(v.score) }))
+        .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
+
+      tbody.innerHTML = '';
+      emptyState.style.display = entries.length ? 'none' : 'block';
+
+      const isAdmin = !!auth.currentUser;
+
+      entries.forEach(({ id, name, score }, i) => {
+        const rank      = i + 1;
+        const rankClass = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? 'bronze' : '';
+        const rankLabel = rank <= 3 ? MEDALS[i] : rank;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="rank ${rankClass}">${rankLabel}</td>
+          <td class="player">${esc(name)}</td>
+          <td class="score">${score.toLocaleString()}</td>
+          <td class="action">
+            <button class="remove-btn ${isAdmin ? 'show' : ''}" data-id="${esc(id)}">Remove</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (confirm('Remove this entry from the leaderboard?')) {
+            remove(ref(db, `leaderboard/${btn.dataset.id}`));
+          }
+        });
+      });
+    });
+
+    // ── Add entry ────────────────────────────────────────────────────────
+    addForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const name  = nameInput.value.trim();
+      const score = parseInt(scoreInput.value, 10);
+      if (!name || isNaN(score)) return;
+      push(ref(db, 'leaderboard'), { name, score });
+      nameInput.value  = '';
+      scoreInput.value = '';
+      nameInput.focus();
+    });
+
+    // ── Auth state ───────────────────────────────────────────────────────
+    onAuthStateChanged(auth, user => {
+      const on = !!user;
+      adminPanel.style.display = on ? 'block' : 'none';
+      adminBtn.textContent     = on ? 'Logout' : 'Admin';
+      adminBtn.classList.toggle('logged-in', on);
+      document.querySelectorAll('.remove-btn')
+        .forEach(b => b.classList.toggle('show', on));
+    });
+
+    // ── Admin button ─────────────────────────────────────────────────────
+    adminBtn.addEventListener('click', () => {
+      if (auth.currentUser) {
+        signOut(auth);
+      } else {
+        loginOverlay.classList.add('open');
+        document.getElementById('emailInput').focus();
+      }
+    });
+
+    // ── Login ────────────────────────────────────────────────────────────
+    loginForm.addEventListener('submit', async e => {
+      e.preventDefault();
+      loginError.style.display = 'none';
+      try {
+        await signInWithEmailAndPassword(
+          auth,
+          document.getElementById('emailInput').value,
+          document.getElementById('passwordInput').value
+        );
+        loginOverlay.classList.remove('open');
+        loginForm.reset();
+      } catch {
+        loginError.style.display = 'block';
+      }
+    });
+
+    document.getElementById('cancelLogin').addEventListener('click', () => {
+      loginOverlay.classList.remove('open');
+      loginForm.reset();
+      loginError.style.display = 'none';
+    });
+
+    // ── Util ─────────────────────────────────────────────────────────────
+    function esc(s) {
+      return String(s).replace(/[&<>"']/g, c =>
+        ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    }
+  </script>
+
+</body>
+</html>
